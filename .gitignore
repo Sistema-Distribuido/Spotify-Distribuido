@@ -1,0 +1,36 @@
+# --- Geral ---
+.DS_Store
+Thumbs.db
+.env
+
+# --- Go ---
+/bin/
+*.exe
+*.o
+*.test
+vendor/
+
+# --- Node.js  ---
+node_modules/
+npm-debug.log
+dist/
+build/
+
+# --- Python  ---
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# --- Java ---
+*.class
+*.jar
+*.war
+target/
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
