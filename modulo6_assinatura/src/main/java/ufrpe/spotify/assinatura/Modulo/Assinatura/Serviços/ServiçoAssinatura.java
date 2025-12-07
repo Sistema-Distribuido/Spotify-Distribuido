@@ -26,7 +26,7 @@ public class ServiçoAssinatura {
     }
 
     // atualiza um usuário para premium
-    public boolean upgradePremium(UUID usuario){
+    public Assinatura upgradePremium(UUID usuario){
         Assinatura user = assinaturaRepository.findByUserId(usuario).orElse(new Assinatura());
 
         user.setStatus(Assinatura.SubscriptionStatus.ATIVO);
@@ -34,7 +34,7 @@ public class ServiçoAssinatura {
         user.setFimAssinatura(java.time.LocalDateTime.now().plusMonths(1));
         user.setId(usuario);
 
-        assinaturaRepository.save(user);
+        return assinaturaRepository.save(user);
 
     }
 
