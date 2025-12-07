@@ -2,7 +2,8 @@ package com.ufrpe.main.models;
 
 public enum UserRole {
     ADMIN("ADMIN"),
-    USER("USER");
+    PREMIUM("PREMIUM"),
+    FREE("FREE");
     private String role;
 
 
