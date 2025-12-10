@@ -1,0 +1,24 @@
+[
+  {
+    "id": "4c210bc4-f715-4f3c-a4b1-fa637d289958",
+    "userId": "user-123",
+    "nome": "Rock Cl�ssico",
+    "descricao": "As melhores do rock",
+    "musicaIds": [
+      "9375bbe4-2a82-49b1-a1e9-82735fa13513"
+    ],
+    "criadoEm": "2025-12-09T18:55:51.816Z",
+    "atualizadoEm": "2025-12-09T18:58:17.599Z"
+  },
+  {
+    "id": "7c5eefa8-61ee-4fb7-8b8a-2a87af3a8fed",
+    "userId": "test-user",
+    "nome": "Teste",
+    "descricao": "Valida��o",
+    "musicaIds": [
+      "9375bbe4-2a82-49b1-a1e9-82735fa13513"
+    ],
+    "criadoEm": "2025-12-09T19:06:21.863Z",
+    "atualizadoEm": "2025-12-09T19:06:21.890Z"
+  }
+]
