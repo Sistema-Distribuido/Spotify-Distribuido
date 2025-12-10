@@ -1,0 +1,23 @@
+[
+  {
+    "id": "9375bbe4-2a82-49b1-a1e9-82735fa13513",
+    "titulo": "Bohemian Rhapsody",
+    "artista": "Queen",
+    "capa": "https://via.placeholder.com/300?text=Queen",
+    "duracao": 354
+  },
+  {
+    "id": "bb7b20fe-145d-43b5-95fb-b54e1d0a1df9",
+    "titulo": "Imagine",
+    "artista": "John Lennon",
+    "capa": "https://via.placeholder.com/300?text=Lennon",
+    "duracao": 183
+  },
+  {
+    "id": "3c82077b-d1fe-4c34-8250-7af993cf5751",
+    "titulo": "Hotel California",
+    "artista": "Eagles",
+    "capa": "https://via.placeholder.com/300?text=Eagles",
+    "duracao": 391
+  }
+]
