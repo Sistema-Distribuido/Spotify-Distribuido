@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Distribuído - Teste Completo</title>
+    <style>
+        :root { --primary: #1DB954; --dark: #191414; --light: #FFFFFF; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+        
+        /* Layout */
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex: 1; min-width: 300px; }
+        h2 { margin-top: 0; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        /* Controles */
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 60%; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: 0.2s; margin: 5px 0; }
+        .btn-join { background-color: #2196F3; color: white; width: 30%; }
+        
+        /* Player */
+        .player-box { text-align: center; background: #222; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .timer { font-size: 2.5em; font-weight: bold; font-family: monospace; }
+        .status { color: #aaa; font-size: 0.9em; }
+        .controls button { width: 100px; }
+        .btn-play { background-color: var(--primary); color: white; }
+        .btn-pause { background-color: #ff9800; color: white; }
+        
+        /* Votação */
+        .vote-box { background: #ffebee; border: 1px solid #ffcdd2; padding: 15px; border-radius: 8px; text-align: center; }
+        .btn-vote { background-color: #e53935; color: white; width: 100%; font-size: 1.1em; }
+        .vote-count { font-size: 1.2em; font-weight: bold; color: #b71c1c; margin-top: 10px; display: block; }
+
+        /* Chat */
+        .chat-container { display: flex; flex-direction: column; height: 300px; }
+        .chat-messages { flex: 1; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background: #fafafa; border-radius: 4px; }
+        .msg { padding: 5px 8px; margin-bottom: 5px; border-radius: 4px; background: #e3f2fd; width: fit-content; }
+        .msg strong { color: #1565C0; }
+        .msg.system { background: transparent; color: #888; font-style: italic; width: 100%; text-align: center; }
+        
+        /* Logs */
+        .log-box { font-family: monospace; font-size: 0.8em; height: 150px; overflow-y: auto; background: #111; color: #0f0; padding: 10px; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>1. Conexão</h2>
+        <div>
+            <input type="text" id="username" placeholder="Seu Nome (ex: João)" value="User1">
+            <input type="text" id="room" placeholder="ID Sala" value="sala1" style="width: 30%">
+            <button class="btn-join" onclick="join()">Entrar</button>
+        </div>
+
+        <div class="player-box">
+            <div class="status" id="player-status">Aguardando...</div>
+            <div class="timer" id="current-time">00:00</div>
+            <div class="controls">
+                <button class="btn-play" onclick="sendAction('play')">▶ PLAY</button>
+                <button class="btn-pause" onclick="sendAction('pause')">⏸ PAUSE</button>
+            </div>
+        </div>
+
+        <div class="vote-box">
+            <h3>Pular Música?</h3>
+            <button class="btn-vote" onclick="sendAction('vote')">👎 Votar para Pular</button>
+            <span class="vote-count" id="vote-display">Votos: 0/0</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>2. Chat da Sala</h2>
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-box">
+                <div class="msg system">Bem-vindo ao chat!</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem..." onkeypress="handleEnter(event)">
+                <button onclick="sendChat()" style="width: 80px; background: var(--primary); color: white;">Enviar</button>
+            </div>
+        </div>
+
+        <div class="log-box" id="system-log">Logs do Sistema...</div>
+    </div>
+
+    <script>
+        let socket;
+        let timerInterval;
+        let musicTime = 0.0;
+        let isPlaying = false;
+
+        function join() {
+            const user = document.getElementById('username').value;
+            const room = document.getElementById('room').value;
+            
+            // Conecta no WebSocket
+            socket = new WebSocket("ws://localhost:3005/ws");
+
+            socket.onopen = () => {
+                log("🟢 Conectado!");
+                // Manda o Join
+                socket.send(JSON.stringify({ action: "join", room_id: room, username: user }));
+                document.querySelector('.btn-join').disabled = true;
+                document.querySelector('.btn-join').innerText = "Conectado";
+            };
+
+            socket.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                processMessage(msg);
+            };
+
+            socket.onclose = () => log("🔴 Desconectado.");
+        }
+
+        function processMessage(msg) {
+            // 1. Lógica do Player (Play/Pause/Sync)
+            if (msg.action === 'play' || msg.action === 'sync') {
+                updatePlayer(msg.timestamp, true);
+                log(`▶ Tocando em ${msg.timestamp.toFixed(1)}s`);
+            } 
+            else if (msg.action === 'pause') {
+                updatePlayer(msg.timestamp, false);
+                log(`⏸ Pausado em ${msg.timestamp.toFixed(1)}s`);
+            }
+
+            // 2. Lógica do Chat
+            else if (msg.action === 'chat') {
+                addChatMessage(msg.username || 'Anônimo', msg.content);
+            }
+
+            // 3. Lógica da Votação
+            else if (msg.action === 'vote_update') {
+                document.getElementById('vote-display').innerText = msg.content; // "Votos: 1/3"
+                log(`🗳️ ${msg.content}`);
+            }
+            else if (msg.action === 'skip_approved') {
+                alert("⏭️ A MAIORIA VOTOU! PULANDO MÚSICA!");
+                updatePlayer(0, true); // Reseta a música
+                document.getElementById('vote-display').innerText = "Votos: 0/0";
+                addChatMessage("SISTEMA", "⏭️ Música pulada por votação!");
+            }
+        }
+
+        // --- Envio de Comandos ---
+        function sendAction(action) {
+            if (!socket) return alert("Entre na sala primeiro!");
+            const room = document.getElementById('room').value;
+            
+            socket.send(JSON.stringify({ 
+                action: action, 
+                room_id: room, 
+                timestamp: musicTime 
+            }));
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const text = input.value;
+            const user = document.getElementById('username').value;
+            const room = document.getElementById('room').value;
+
+            if (text.trim() === "") return;
+
+            socket.send(JSON.stringify({
+                action: "chat",
+                room_id: room,
+                content: text,
+                username: user
+            }));
+            
+            input.value = ""; // Limpa campo
+        }
+
+        // --- UI Helpers ---
+        function updatePlayer(timestamp, playing) {
+            musicTime = timestamp;
+            isPlaying = playing;
+            const statusDiv = document.getElementById('player-status');
+            
+            if (timerInterval) clearInterval(timerInterval);
+
+            if (isPlaying) {
+                statusDiv.innerText = "TOCANDO 🔊";
+                statusDiv.style.color = "#1DB954";
+                timerInterval = setInterval(() => {
+                    musicTime += 0.1;
+                    document.getElementById('current-time').innerText = formatTime(musicTime);
+                }, 100);
+            } else {
+                statusDiv.innerText = "PAUSADO ⏸";
+                statusDiv.style.color = "orange";
+                document.getElementById('current-time').innerText = formatTime(musicTime);
+            }
+        }
+
+        function addChatMessage(user, text) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="msg"><strong>${user}:</strong> ${text}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function log(text) {
+            const logBox = document.getElementById('system-log');
+            logBox.innerHTML += `<div>> ${text}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+        
+        function handleEnter(e) { if(e.key === 'Enter') sendChat(); }
+    </script>
+</body>
+</html>

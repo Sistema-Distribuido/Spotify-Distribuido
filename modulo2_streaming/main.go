@@ -9,6 +9,16 @@ import (
 )
 
 func streamHandler(w http.ResponseWriter, r *http.Request) {
+	// Configurar CORS
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Range, Content-Type")
+	
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	
 	//Caminho do arquivo (coloque um arquivo 'musica.mp3' na mesma pasta)
 	filePath := "./musica.mp3"
 
