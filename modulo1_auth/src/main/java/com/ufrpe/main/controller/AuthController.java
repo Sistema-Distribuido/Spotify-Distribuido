@@ -17,11 +17,9 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("auth")
 public class AuthController {
@@ -45,6 +43,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = APIresponse.class)))
     })
     // Utiliza a autenticação padrão do springboot, passando login e senha e então retorna um token do usuario
+    @CrossOrigin(origins = "*")
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody AuthDTO data){
         try {
