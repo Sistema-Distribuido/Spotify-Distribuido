@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Biblioteca</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: #b3b3b3; font-family: sans-serif; padding-bottom: 100px; }
+        .sidebar { height: 100vh; background-color: #000; position: fixed; width: 240px; padding: 20px; }
+        .main-content { margin-left: 240px; padding: 20px; }
+        .card-music { background-color: #181818; padding: 15px; border-radius: 8px; transition: 0.3s; cursor: pointer; }
+        .card-music:hover { background-color: #282828; color: white; }
+        .player-bar { position: fixed; bottom: 0; width: 100%; height: 90px; background-color: #181818; border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
+        .premium-badge { background-color: gold; color: black; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h3 class="text-white mb-4">🎵 MusicApp</h3>
+    <ul class="list-unstyled">
+        <li class="mb-2 text-white">🏠 Início</li>
+        <li class="mb-2">🔍 Buscar</li>
+        <li class="mb-2">📚 Sua Biblioteca</li>
+    </ul>
+    <hr>
+    <div id="user-info">Carregando...</div>
+    <span id="premium-tag" class="premium-badge mt-2">PREMIUM 💎</span>
+    <button onclick="upgradeAccount()" id="btn-upgrade" class="btn btn-outline-light btn-sm mt-3 w-100">Virar Premium</button>
+    <button onclick="logout()" class="btn btn-link text-secondary btn-sm mt-2">Sair</button>
+</div>
+
+<div class="main-content">
+    <h2 class="text-white mb-3">Músicas para você</h2>
+    
+    <div class="row" id="music-list">
+        </div>
+</div>
+
+<div class="player-bar">
+    <div style="width: 30%">
+        <h6 class="text-white mb-0" id="current-song-title">Nada tocando</h6>
+        <small id="current-artist">Escolha uma música</small>
+    </div>
+    <div style="width: 40%" class="text-center">
+        <audio id="audio-player" controls style="width: 100%; height: 40px;"></audio>
+    </div>
+    <div style="width: 30%; text-align: right;">
+        Volume 🔊
+    </div>
+</div>
+
+<script>
+    // CONFIGURAÇÃO DAS PORTAS
+    const API = {
+        BILLING: "http://localhost:8082/api/billing",
+        CATALOG: "http://localhost:8083/api/songs", // Supondo que o catalogo esteja na 8083
+        STREAM: "http://localhost:8083/api/stream"
+    };
+
+    // 1. Verificar Autenticação ao carregar
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+        window.location.href = 'login.html';
+    }
+
+    document.getElementById('user-info').innerText = `ID: ${userId.substring(0,8)}...`;
+
+    // 2. Carregar Status Premium (Billing Service)
+    async function loadUserStatus() {
+        try {
+            const res = await fetch(`${API.BILLING}/status/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            if (data.premium) {
+                document.getElementById('premium-tag').style.display = 'inline-block';
+                document.getElementById('btn-upgrade').style.display = 'none';
+            }
+        } catch (e) {
+            console.error("Erro ao carregar billing:", e);
+        }
+    }
+
+    // 3. Simular Upgrade de Conta
+    async function upgradeAccount() {
+        if(confirm("Deseja pagar R$ 19,90 para virar Premium?")) {
+            await fetch(`${API.BILLING}/upgrade/${userId}`, { 
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            alert("Parabéns! Você agora é Premium. (Recarregando...)");
+            location.reload();
+        }
+    }
+
+    // 4. Carregar Músicas (Mockado para teste, substitua pela chamada real)
+    function loadSongs() {
+        // Exemplo de dados que viriam do seu Módulo Catálogo
+        const songs = [
+            { id: '1', title: 'Bohemian Rhapsody', artist: 'Queen', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+            { id: '2', title: 'Shape of You', artist: 'Ed Sheeran', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+            { id: '3', title: 'Blinding Lights', artist: 'The Weeknd', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' }
+        ];
+
+        const container = document.getElementById('music-list');
+        container.innerHTML = '';
+
+        songs.forEach(song => {
+            const html = `
+                <div class="col-md-4 mb-3">
+                    <div class="card-music" onclick="playMusic('${song.title}', '${song.artist}', '${song.url}')">
+                        <div style="background: #333; height: 150px; width: 100%; margin-bottom: 10px;"></div>
+                        <h5 class="text-white mb-0">${song.title}</h5>
+                        <small>${song.artist}</small>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    }
+
+    // 5. Função de Tocar
+    function playMusic(title, artist, url) {
+        document.getElementById('current-song-title').innerText = title;
+        document.getElementById('current-artist').innerText = artist;
+        
+        const player = document.getElementById('audio-player');
+        player.src = url; // Aqui apontaria para seu Módulo de Streaming
+        player.play();
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+
+    // Inicialização
+    loadUserStatus();
+    loadSongs();
+
+</script>
+</body>
+</html>

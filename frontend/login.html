@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Distribuído - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background-color: #1e1e1e; border: none; width: 400px; }
+        .form-control { background-color: #333; border: none; color: white; }
+        .form-control:focus { background-color: #444; color: white; box-shadow: none; }
+        .btn-green { background-color: #1db954; color: white; font-weight: bold; border-radius: 50px; }
+        .btn-green:hover { background-color: #1ed760; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="card p-4">
+    <h2 class="text-center mb-4">🎵 MusicApp</h2>
+    
+    <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab">
+        <li class="nav-item"><button class="nav-link active btn-sm" onclick="showForm('login')">Login</button></li>
+        <li class="nav-item"><button class="nav-link btn-sm" onclick="showForm('register')">Cadastro</button></li>
+    </ul>
+
+    <div id="login-form">
+        <input type="text" id="loginUser" class="form-control mb-3" placeholder="Usuário / Email">
+        <input type="password" id="loginPass" class="form-control mb-3" placeholder="Senha">
+        <button onclick="doLogin()" class="btn btn-green w-100">Entrar</button>
+    </div>
+
+    <div id="register-form" style="display: none;">
+        <input type="text" id="regUser" class="form-control mb-3" placeholder="Escolha um Usuário">
+        <input type="password" id="regPass" class="form-control mb-3" placeholder="Crie uma Senha">
+        <button onclick="doRegister()" class="btn btn-outline-light w-100">Criar Conta</button>
+    </div>
+    
+    <div id="msg" class="text-center mt-3 text-danger"></div>
+</div>
+
+<script>
+    // URL do seu módulo Auth (Ajuste a porta se precisar)
+    const AUTH_API = "http://localhost:8081/auth"; 
+
+    function showForm(type) {
+        document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+        document.getElementById('register-form').style.display = type === 'register' ? 'block' : 'none';
+    }
+
+    async function doLogin() {
+        const user = document.getElementById('loginUser').value;
+        const pass = document.getElementById('loginPass').value;
+
+        try {
+            // Simulando chamada ao Java
+            const response = await fetch(`${AUTH_API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Salva o token JWT e o ID do usuário
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.userId);
+                window.location.href = 'index.html'; // Vai para a página principal
+            } else {
+                document.getElementById('msg').innerText = "Login falhou!";
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('msg').innerText = "Erro de conexão com o servidor.";
+        }
+    }
+
+    async function doRegister() {
+        const user = document.getElementById('regUser').value;
+        const pass = document.getElementById('regPass').value;
+        const msgDiv = document.getElementById('msg'); // Elemento para msg de erro/sucesso
+
+        // Limpeza básica
+        if (!user || !pass) {
+            msgDiv.innerText = "Preencha todos os campos!";
+            msgDiv.className = "text-center mt-3 text-warning";
+            return;
+        }
+
+        try {
+            const response = await fetch(`${AUTH_API}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass, role: "FREE" })
+            });
+
+            if (response.ok) {
+                // SUCESSO
+                msgDiv.innerText = "Conta criada com sucesso! Faça login.";
+                msgDiv.className = "text-center mt-3 text-success";
+                
+                // Opcional: Limpar campos
+                document.getElementById('regUser').value = "";
+                document.getElementById('regPass').value = "";
+                
+                // Opcional: Mudar automaticamente para a aba de login após 2 segundos
+                setTimeout(() => showForm('login'), 2000);
+                
+            } else if (response.status === 409) {
+                // CONFLITO (Usuário já existe)
+                msgDiv.innerText = "Erro: Este usuário já existe.";
+                msgDiv.className = "text-center mt-3 text-danger";
+            } else {
+                // OUTROS ERROS
+                msgDiv.innerText = "Erro ao criar conta.";
+                msgDiv.className = "text-center mt-3 text-danger";
+            }
+
+        } catch (e) {
+            console.error(e);
+            msgDiv.innerText = "Erro de conexão com o servidor.";
+            msgDiv.className = "text-center mt-3 text-danger";
+        }
+    }
+</script>
+</body>
+</html>
