@@ -5,13 +5,90 @@
     <title>Spotify Distribuído - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #121212; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .card { background-color: #1e1e1e; border: none; width: 400px; }
-        .form-control { background-color: #333; border: none; color: white; }
-        .form-control:focus { background-color: #444; color: white; box-shadow: none; }
-        .btn-green { background-color: #1db954; color: white; font-weight: bold; border-radius: 50px; }
-        .btn-green:hover { background-color: #1ed760; color: white; }
-    </style>
+    /* Fundo geral da página: cinza bem claro, quase branco */
+    body { 
+        background-color: #f4f6f8; 
+        color: #333333; /* Texto cinza escuro para bom contraste */
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 100vh; 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* O cartão central: branco puro com uma sombra suave para destacar */
+    .card { 
+        background-color: #ffffff; 
+        border: none; 
+        width: 400px; 
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Sombra elegante */
+    }
+
+    /* Título */
+    h2 {
+        color: #121212;
+        font-weight: 700;
+    }
+
+    /* Abas de navegação (Login/Cadastro) */
+    .nav-pills .nav-link {
+        color: #555; /* Cor do texto da aba inativa */
+        font-weight: 500;
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: #1db954; /* Verde Spotify */
+        color: white;
+    }
+
+    /* Campos de input: Fundo branco com borda suave */
+    .form-control { 
+        background-color: #f9f9f9; 
+        border: 1px solid #e0e0e0; 
+        color: #333; 
+        padding: 12px;
+    }
+
+    /* Ao clicar no input */
+    .form-control:focus { 
+        background-color: #ffffff; 
+        color: #333; 
+        border-color: #1db954; /* Borda verde ao digitar */
+        box-shadow: 0 0 0 0.2rem rgba(29, 185, 84, 0.25);
+    }
+
+    /* Botão Principal */
+    .btn-green { 
+        background-color: #1db954; 
+        color: white; 
+        font-weight: bold; 
+        border-radius: 50px; 
+        padding: 10px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .btn-green:hover { 
+        background-color: #1ed760; 
+        color: white; 
+        transform: scale(1.02); /* Pequeno efeito de zoom */
+    }
+    
+    /* Botão Secundário (Criar Conta) - Estilo Outline escuro */
+    .btn-outline-dark-custom {
+        border: 2px solid #333;
+        color: #333;
+        font-weight: bold;
+        border-radius: 50px;
+        padding: 10px;
+    }
+    
+    .btn-outline-dark-custom:hover {
+        background-color: #333;
+        color: white;
+    }
+</style>
 </head>
 <body>
 
@@ -32,7 +109,7 @@
     <div id="register-form" style="display: none;">
         <input type="text" id="regUser" class="form-control mb-3" placeholder="Escolha um Usuário">
         <input type="password" id="regPass" class="form-control mb-3" placeholder="Crie uma Senha">
-        <button onclick="doRegister()" class="btn btn-outline-light w-100">Criar Conta</button>
+        <button onclick="doRegister()" class="btn btn-outline-dark-custom w-100">Criar Conta</button>
     </div>
     
     <div id="msg" class="text-center mt-3 text-danger"></div>
