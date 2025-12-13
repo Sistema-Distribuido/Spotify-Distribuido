@@ -42,6 +42,7 @@ type Message struct {
 	Timestamp float64 `json:"timestamp"`
 	Content   string  `json:"content,omitempty"`
 	UserName  string  `json:"username,omitempty"`
+	TrackID   string  `json:"track_id,omitempty"`
 }
 
 // Handler Principal (WebSocket)
@@ -116,9 +117,9 @@ func handleJoin(roomID string, conn *websocket.Conn) {
 	if state.IsPlaying {
 		elapsed := time.Since(state.StartTime).Seconds()
 		currentPos = state.PausedAt + elapsed
-		conn.WriteJSON(Message{Action: "sync", RoomID: roomID, Timestamp: currentPos})
+		conn.WriteJSON(Message{Action: "sync", RoomID: roomID, Timestamp: currentPos, TrackID: state.CurrentMusic})
 	} else {
-		conn.WriteJSON(Message{Action: "pause", RoomID: roomID, Timestamp: state.PausedAt})
+		conn.WriteJSON(Message{Action: "pause", RoomID: roomID, Timestamp: state.PausedAt, TrackID: state.CurrentMusic})
 	}
 }
 
@@ -174,6 +175,9 @@ func handlePlay(msg Message) {
 	state.IsPlaying = true
 	state.StartTime = time.Now().Add(-time.Duration(msg.Timestamp) * time.Second)
 	state.PausedAt = msg.Timestamp
+	if msg.TrackID != "" {
+		state.CurrentMusic = msg.TrackID
+	}
 
 	log.Printf("[PLAY] Room: %s | Time: %.2fs", msg.RoomID, msg.Timestamp)
 	broadcastToRoom(msg, nil)
@@ -190,6 +194,9 @@ func handlePause(msg Message) {
 
 	state.IsPlaying = false
 	state.PausedAt = msg.Timestamp
+	if msg.TrackID != "" {
+		state.CurrentMusic = msg.TrackID
+	}
 
 	log.Printf("[PAUSE] Room: %s | Time: %.2fs", msg.RoomID, msg.Timestamp)
 	broadcastToRoom(msg, nil)

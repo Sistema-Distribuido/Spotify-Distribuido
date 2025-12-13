@@ -116,8 +116,7 @@
 </div>
 
 <script>
-    // URL do seu módulo Auth (Ajuste a porta se precisar)
-    const AUTH_API = "http://localhost:8081/auth"; 
+    const AUTH_API = "http://localhost:3001/auth"; 
 
     function showForm(type) {
         document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
@@ -138,10 +137,9 @@
 
             if (response.ok) {
                 const data = await response.json();
-                // Salva o token JWT e o ID do usuário
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userId', data.userId);
-                window.location.href = 'index.html'; // Vai para a página principal
+                localStorage.setItem('userId', document.getElementById('loginUser').value);
+                window.location.href = 'index.html';
             } else {
                 document.getElementById('msg').innerText = "Login falhou!";
             }

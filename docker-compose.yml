@@ -1,0 +1,50 @@
+services:
+  modulo1_auth:
+    build: ./modulo1_auth
+    image: spotify_modulo1_auth
+    container_name: spotify_modulo1_auth
+    ports:
+      - "3001:3001"
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+  modulo2_streaming:
+    build: ./modulo2_streaming
+    image: spotify_modulo2_streaming
+    container_name: spotify_modulo2_streaming
+    ports:
+      - "3002:3002"
+    volumes:
+      - "c:/Users/DonGu/GolandProjects/Spotify-Distribuido/modulo2_streaming/musica.mp3:/app/audio/musica.mp3:ro"
+    environment:
+      STREAM_MAP: '{"9375bbe4-2a82-49b1-a1e9-82735fa13513":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3","bb7b20fe-145d-43b5-95fb-b54e1d0a1df9":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","3c82077b-d1fe-4c34-8250-7af993cf5751":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"}'
+  modulo3_biblioteca:
+    build: ./modulo3_biblioteca
+    image: spotify_modulo3_biblioteca
+    container_name: spotify_modulo3_biblioteca
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: "3003"
+      METADATA_SERVICE_URL: "http://modulo4_metadados:3004"
+    depends_on:
+      - modulo4_metadados
+  modulo4_metadados:
+    build: ./modulo4_metadados
+    image: spotify_modulo4_metadados
+    container_name: spotify_modulo4_metadados
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: "3004"
+  modulo5_sala:
+    build: ./modulo5_sala
+    image: spotify_modulo5_sala
+    container_name: spotify_modulo5_sala
+    ports:
+      - "3005:3005"
+  modulo6_assinatura:
+    build: ./modulo6_assinatura
+    image: spotify_modulo6_assinatura
+    container_name: spotify_modulo6_assinatura
+    ports:
+      - "3006:3006"
