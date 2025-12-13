@@ -2,11 +2,7 @@ package ufrpe.spotify.assinatura.Modulo.Assinatura.Controlador;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ufrpe.spotify.assinatura.Modulo.Assinatura.Serviços.ServiçoAssinatura;
 
 import java.util.Map;
@@ -14,6 +10,8 @@ import java.util.UUID;
 
 
 
+
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/assinatura")
 public class AssinaturaController {
@@ -23,8 +21,10 @@ public class AssinaturaController {
         this.serviçoAssinatura = serviçoAssinatura;
     }
 
+
+    @CrossOrigin(origins = "*")
     @GetMapping("/status/{userID}")
-    public ResponseEntity<?> verificarStatus(@PathVariable UUID userID){
+    public ResponseEntity<?> verificarStatus(@PathVariable int userID){
         boolean ehPremium = serviçoAssinatura.ehPremium(userID);
 
         return ResponseEntity.ok(Map.of(
@@ -36,8 +36,10 @@ public class AssinaturaController {
 
     }
 
+
+    @CrossOrigin(origins = "*")
     @PostMapping("/upgrade/{userID}")
-    public ResponseEntity<?> upgrade(@PathVariable UUID userID){
+    public ResponseEntity<?> upgrade(@PathVariable int userID){
         serviçoAssinatura.upgradePremium(userID);
         return ResponseEntity.ok(Map.of(
                 "userId", userID,

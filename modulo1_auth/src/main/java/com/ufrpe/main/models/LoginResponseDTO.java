@@ -1,4 +1,6 @@
 package com.ufrpe.main.models;
 
-public record LoginResponseDTO(String token) {
+import java.util.UUID;
+
+public record LoginResponseDTO(String token, int userId) {
 }

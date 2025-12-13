@@ -90,7 +90,7 @@
 <script>
     // CONFIGURAÇÃO DAS PORTAS
     const API = {
-        BILLING: "http://localhost:3006/api/billing",
+        BILLING: "http://localhost:3006/api/assinatura",
         CATALOG: "http://localhost:3004/musicas",
         STREAM: "http://localhost:3002/stream",
         LIBRARY: "http://localhost:3003"
@@ -99,12 +99,13 @@
     // 1. Verificar Autenticação ao carregar
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
 
     if (!token || !userId) {
         window.location.href = 'login.html';
     }
 
-    document.getElementById('user-info').innerText = `ID: ${userId.substring(0,8)}...`;
+    document.getElementById('user-info').innerText = `ID: ${userId}`;
 
     // 2. Carregar Status Premium (Billing Service)
     async function loadUserStatus() {
@@ -249,7 +250,7 @@
         }
     });
     function joinSala() {
-        const user = userId;
+        const user = username || 'Anônimo';
         const room = document.getElementById('room-id').value;
         roomSocket = new WebSocket("ws://localhost:3005/ws");
         roomSocket.onopen = () => {
@@ -317,7 +318,7 @@
         if (!roomSocket) return;
         const input = document.getElementById('room-chat-input');
         const text = input.value;
-        const user = userId;
+        const user = username || 'Anônimo';
         const room = document.getElementById('room-id').value;
         if (!text.trim()) return;
         roomSocket.send(JSON.stringify({ action: "chat", room_id: room, content: text, username: user }));

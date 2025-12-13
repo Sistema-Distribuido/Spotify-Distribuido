@@ -13,12 +13,12 @@ import java.util.UUID;
 public class Assinatura {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
     // Apenas armazenamos o ID do usuário (chave estrangeira lógica)
     @Column(name = "user_id", unique = true, nullable = false)
-    private UUID userId;
+    private int userId;
 
     @Enumerated(EnumType.STRING)
     private PlanType plano;

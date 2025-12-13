@@ -138,7 +138,8 @@
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userId', document.getElementById('loginUser').value);
+                localStorage.setItem('userId', data.userId);
+                localStorage.setItem('username', data.username);
                 window.location.href = 'index.html';
             } else {
                 document.getElementById('msg').innerText = "Login falhou!";

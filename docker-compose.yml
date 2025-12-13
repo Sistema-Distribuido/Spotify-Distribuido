@@ -14,7 +14,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - "c:/Users/DonGu/GolandProjects/Spotify-Distribuido/modulo2_streaming/musica.mp3:/app/audio/musica.mp3:ro"
+      - "./modulo2_streaming/musica.mp3:/app/audio/musica.mp3:ro"
     environment:
       STREAM_MAP: '{"9375bbe4-2a82-49b1-a1e9-82735fa13513":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3","bb7b20fe-145d-43b5-95fb-b54e1d0a1df9":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","3c82077b-d1fe-4c34-8250-7af993cf5751":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"}'
   modulo3_biblioteca:
